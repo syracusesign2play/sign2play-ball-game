@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ball Colors Sign Language Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 10px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-item h3 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .score-item span {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .video-container {
+            margin-bottom: 30px;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-element {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+
+        .setup-message {
+            background: #e6fffa;
+            border: 2px dashed #38b2ac;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: #234e52;
+        }
+
+        .setup-message h3 {
+            margin-bottom: 15px;
+            color: #2c7a7b;
+        }
+
+        .setup-message ol {
+            text-align: left;
+            margin: 15px 0;
+        }
+
+        .setup-message li {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+
+        .choices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .choice-btn {
+            padding: 20px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+        }
+
+        .choice-image {
+            font-size: 3em;
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .choice-btn:active {
+            transform: translateY(0);
+        }
+
+        .choice-btn.correct {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            animation: pulse 0.6s;
+        }
+
+        .choice-btn.incorrect {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            animation: shake 0.6s;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .replay-btn {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            color: white;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .feedback {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feedback.correct {
+            background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
+            color: #22543d;
+        }
+
+        .feedback.incorrect {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            color: #742a2a;
+        }
+
+        .game-complete {
+            background: linear-gradient(135deg, #fbb6ce, #f687b3);
+            color: #744210;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .choices-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🤟 Ball Colors Sign Language Game</h1>
+            <p>Watch the sign and find the correct colored ball!</p>
+        </div>
+
+        <div class="setup-message" id="setup-message">
+            <h3>📁 Setup Instructions</h3>
+            <p><strong>To use your sign language videos:</strong></p>
+            <ol>
+                <li>Download this HTML file to your computer</li>
+                <li>Create a folder called "videos" in the same location as this HTML file</li>
+                <li>Save your 6 MP4 videos in the videos folder with these exact names:
+                    <ul style="margin-top: 10px;">
+                        <li><code>red-ball.mp4</code></li>
+                        <li><code>yellow-ball.mp4</code></li>
+                        <li><code>blue-ball.mp4</code></li>
+                        <li><code>white-ball.mp4</code></li>
+                        <li><code>green-ball.mp4</code></li>
+                        <li><code>black-ball.mp4</code></li>
+                    </ul>
+                </li>
+                <li>Open this HTML file in your web browser</li>
+                <li>Click "Start Game" below</li>
+            </ol>
+            <p style="margin-top: 15px;"><em>The game will work perfectly with your local video files!</em></p>
+            <button class="control-btn restart-btn" onclick="startGame()" style="margin-top: 15px;">🎮 Start Game</button>
+        </div>
+
+        <div id="game-content" class="hidden">
+            <div class="score-board">
+                <div class="score-item">
+                    <h3>Score</h3>
+                    <span id="score">0</span>
+                </div>
+                <div class="score-item">
+                    <h3>Question</h3>
+                    <span id="question-number">1</span> / <span id="total-questions">6</span>
+                </div>
+                <div class="score-item">
+                    <h3>Accuracy</h3>
+                    <span id="accuracy">0%</span>
+                </div>
+            </div>
+
+            <div class="video-container">
+                <video id="sign-video" class="video-element" controls autoplay muted loop>
+                    <source src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <div class="feedback hidden" id="feedback"></div>
+
+            <div class="choices-grid" id="choices-grid">
+                <!-- Choices will be dynamically generated here -->
+            </div>
+
+            <div class="controls">
+                <button class="control-btn replay-btn" onclick="replaySign()">🔄 Replay Sign</button>
+                <button class="control-btn next-btn hidden" id="next-btn" onclick="nextQuestion()">Next Question ➡️</button>
+                <button class="control-btn restart-btn" onclick="restartGame()">🔄 Restart Game</button>
+            </div>
+
+            <div class="game-complete hidden" id="game-complete">
+                <h2>🎉 Game Complete!</h2>
+                <p>You answered <span id="final-correct">0</span> out of <span id="final-total">0</span> questions correctly!</p>
+                <p>Final Score: <span id="final-score">0</span> points</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game data for ball color signs - using local video files
+        const gameData = [
+            { 
+                sign: "🔴", 
+                word: "Red Ball", 
+                emoji: "🔴", 
+                videoUrl: "videos/red-ball.mp4",
+                choices: [
+                    { text: "Red Ball", image: "🔴" },
+                    { text: "Blue Ball", image: "🔵" },
+                    { text: "Yellow Ball", image: "🟡" },
+                    { text: "Green Ball", image: "🟢" }
+                ]
+            },
+            { 
+                sign: "🟡", 
+                word: "Yellow Ball", 
+                emoji: "🟡", 
+                videoUrl: "videos/yellow-ball.mp4",
+                choices: [
+                    { text: "Yellow Ball", image: "🟡" },
+                    { text: "Red Ball", image: "🔴" },
+                    { text: "Black Ball", image: "⚫" },
+                    { text: "White Ball", image: "⚪" }
+                ]
+            },
+            { 
+                sign: "🔵", 
+                word: "Blue Ball", 
+                emoji: "🔵", 
+                videoUrl: "videos/blue-ball.mp4",
+                choices: [
+                    { text: "Blue Ball", image: "🔵" },
+                    { text: "Green Ball", image: "🟢" },
+                    { text: "Red Ball", image: "🔴" },
+                    { text: "Yellow Ball", image: "🟡" }
+                ]
+            },
+            { 
+                sign: "⚪", 
+                word: "White Ball", 
+                emoji: "⚪", 
+                videoUrl: "videos/white-ball.mp4",
+                choices: [
+                    { text: "White Ball", image: "⚪" },
+                    { text: "Black Ball", image: "⚫" },
+                    { text: "Blue Ball", image: "🔵" },
+                    { text: "Red Ball", image: "🔴" }
+                ]
+            },
+            { 
+                sign: "🟢", 
+                word: "Green Ball", 
+                emoji: "🟢", 
+                videoUrl: "videos/green-ball.mp4",
+                choices: [
+                    { text: "Green Ball", image: "🟢" },
+                    { text: "Yellow Ball", image: "🟡" },
+                    { text: "White Ball", image: "⚪" },
+                    { text: "Blue Ball", image: "🔵" }
+                ]
+            },
+            { 
+                sign: "⚫", 
+                word: "Black Ball", 
+                emoji: "⚫", 
+                videoUrl: "videos/black-ball.mp4",
+                choices: [
+                    { text: "Black Ball", image: "⚫" },
+                    { text: "White Ball", image: "⚪" },
+                    { text: "Green Ball", image: "🟢" },
+                    { text: "Yellow Ball", image: "🟡" }
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        let gameQuestions = [];
+        let answered = false;
+
+        function startGame() {
+            document.getElementById('setup-message').className = 'setup-message hidden';
+            document.getElementById('game-content').className = '';
+            initGame();
+        }
+
+        function initGame() {
+            // Shuffle questions for variety
+            gameQuestions = [...gameData].sort(() => Math.random() - 0.5);
+            currentQuestion = 0;
+            score = 0;
+            correctAnswers = 0;
+            answered = false;
+            
+            document.getElementById('total-questions').textContent = gameQuestions.length;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= gameQuestions.length) {
+                endGame();
+                return;
+            }
+
+            const question = gameQuestions[currentQuestion];
+            answered = false;
+            
+            // Update video display
+            const video = document.getElementById('sign-video');
+            video.src = question.videoUrl;
+            video.load();
+            
+            // Update question number
+            document.getElementById('question-number').textContent = currentQuestion + 1;
+            
+            // Create choice buttons
+            const choicesGrid = document.getElementById('choices-grid');
+            choicesGrid.innerHTML = '';
+            
+            // Shuffle choices
+            const shuffledChoices = [...question.choices].sort(() => Math.random() - 0.5);
+            
+            shuffledChoices.forEach(choice => {
+                const button = document.createElement('button');
+                button.className = 'choice-btn';
+                button.innerHTML = `<div class="choice-image">${choice.image}</div>`;
+                button.onclick = () => selectAnswer(choice.text, question.word, choice.image);
+                choicesGrid.appendChild(button);
+            });
+            
+            // Store shuffled choices for later reference
+            window.currentShuffledChoices = shuffledChoices;
+            
+            // Hide feedback and next button
+            document.getElementById('feedback').className = 'feedback hidden';
+            document.getElementById('next-btn').className = 'control-btn next-btn hidden';
+            document.getElementById('game-complete').className = 'game-complete hidden';
+        }
+
+        function selectAnswer(selected, correct, selectedImage) {
+            if (answered) return;
+            answered = true;
+            
+            const isCorrect = selected === correct;
+            const feedback = document.getElementById('feedback');
+            const buttons = document.querySelectorAll('.choice-btn');
+            
+            // Update score and stats
+            if (isCorrect) {
+                score += 10;
+                correctAnswers++;
+                feedback.textContent = `✅ Correct! The sign means "${correct}"`;
+                feedback.className = 'feedback correct';
+            } else {
+                feedback.textContent = `❌ Incorrect. The sign means "${correct}", not "${selected}"`;
+                feedback.className = 'feedback incorrect';
+            }
+            
+            // Color the buttons
+            buttons.forEach(button => {
+                const buttonImage = button.querySelector('.choice-image').textContent;
+                const correctChoice = window.currentShuffledChoices.find(choice => choice.text === correct);
+                const selectedChoice = window.currentShuffledChoices.find(choice => choice.text === selected);
+                
+                if (correctChoice && buttonImage === correctChoice.image) {
+                    button.className = 'choice-btn correct';
+                } else if (selectedChoice && buttonImage === selectedChoice.image && !isCorrect) {
+                    button.className = 'choice-btn incorrect';
+                }
+                button.disabled = true;
+            });
+            
+            // Update display
+            document.getElementById('score').textContent = score;
+            document.getElementById('accuracy').textContent = 
+                Math.round((correctAnswers / (currentQuestion + 1)) * 100) + '%';
+            
+            // Show next button
+            document.getElementById('next-btn').className = 'control-btn next-btn';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            loadQuestion();
+        }
+
+        function replaySign() {
+            const video = document.getElementById('sign-video');
+            video.currentTime = 0;
+            video.play();
+        }
+
+        function restartGame() {
+            if (document.getElementById('game-content').className === 'hidden') {
+                startGame();
+            } else {
+                initGame();
+            }
+        }
+
+        function endGame() {
+            document.getElementById('game-complete').className = 'game-complete';
+            document.getElementById('final-correct').textContent = correctAnswers;
+            document.getElementById('final-total').textContent = gameQuestions.length;
+            document.getElementById('final-score').textContent = score;
+            
+            // Hide other elements
+            document.getElementById('choices-grid').innerHTML = '';
+            document.getElementById('next-btn').className = 'control-btn next-btn hidden';
+        }
+    </script>
+</body>
+</html>
